@@ -2,9 +2,9 @@ addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
   // 处理上传请求
-  if (url.pathname == '/upload') {
-    return handleUpload(request);
-  }
+  //if (url.pathname == '/upload') {
+  //  return handleUpload(request);
+  //}
 
   // 处理文件下载请求
   if (url.pathname.startsWith('/download/')) {
