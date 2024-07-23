@@ -2,12 +2,58 @@
 <html>
 <head>
   <title>R2 Upload</title>
+  <style>
+    #progressBar {
+      width: 100%;
+      height: 20px;
+      background-color: #ddd;
+      border-radius: 5px;
+    }
+
+    #progressBarFill {
+      height: 100%;
+      background-color: #4CAF50;
+      width: 0%;
+      border-radius: 5px;
+    }
+  </style>
 </head>
 <body>
   <h1>Upload File to R2</h1>
   <form method="POST" action="/upload" enctype="multipart/form-data">
-    <input type="file" name="file">
+    <input type="file" name="file" id="fileInput">
     <button type="submit">Upload</button>
   </form>
+  <div id="progressBar">
+    <div id="progressBarFill"></div>
+  </div>
+  <script>
+    const fileInput = document.getElementById('fileInput');
+    const progressBarFill = document.getElementById('progressBarFill');
+
+    fileInput.addEventListener('change', function() {
+      const file = this.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', '/upload');
+
+      xhr.upload.addEventListener('progress', function(event) {
+        const percentComplete = (event.loaded / event.total) * 100;
+        progressBarFill.style.width = percentComplete + '%';
+      });
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          alert('File uploaded successfully!');
+        } else {
+          alert('Upload failed!');
+        }
+      };
+
+      xhr.send(formData);
+    });
+  </script>
 </body>
 </html>
