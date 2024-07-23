@@ -45,16 +45,18 @@
   <div class="container">
     <h1>Upload File to R2</h1>
     <form method="POST" action="/upload" enctype="multipart/form-data">
-      <input type="file" name="file" id="fileInput">
+      <input type="file" name="file" id="fileInput" class="form-control-file">
       <button type="submit">Upload</button>
     </form>
-    <div class="progress" id="progressBar">
+    <div class="progress mt-3" id="progressBar">
       <div class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBarFill"></div>
     </div>
+    <div id="uploadStatus"></div>
   </div>
   <script>
     const fileInput = document.getElementById('fileInput');
     const progressBarFill = document.getElementById('progressBarFill');
+    const uploadStatus = document.getElementById('uploadStatus');
 
     fileInput.addEventListener('change', function() {
       const file = this.files[0];
@@ -64,18 +66,26 @@
       const xhr = new XMLHttpRequest();
       xhr.open('POST', '/upload');
 
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          alert('File uploaded successfully!');
-        } else {
-          alert('Upload failed!');
-        }
-      };
-
       xhr.upload.addEventListener('progress', function(event) {
         const percentComplete = (event.loaded / event.total) * 100;
         progressBarFill.style.width = percentComplete + '%';
       });
+
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          uploadStatus.textContent = 'File uploaded successfully!';
+        } else {
+          uploadStatus.textContent = `Upload failed! Status code: ${xhr.status}`;
+        }
+      };
+
+      xhr.onerror = function(error) {
+        uploadStatus.textContent = `Upload failed! Error: ${error.message}`;
+      };
+
+      xhr.error = function(error) {
+        uploadStatus.textContent = `Upload failed! Error: ${error.message}`;
+      };
 
       xhr.send(formData);
     });
