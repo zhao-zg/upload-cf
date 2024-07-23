@@ -3,13 +3,13 @@ addEventListener('fetch', event => {
   const url = new URL(request.url);
   
   // 处理上传请求
-  if (url.pathname == '/upload' && request.method == 'POST') {
+  if (url.pathname == '/upload') {
     return new Response('File uploaded successfully', { status: 200 });
    // return handleUpload(request);
   }
 
   // 处理文件下载请求
-  if (url.pathname.startsWith('/download/') && request.method == 'GET') {
+  if (url.pathname.startsWith('/download/')) {
     return handleDownload(request);
   }
   // 处理静态文件请求
