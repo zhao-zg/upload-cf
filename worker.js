@@ -36,12 +36,20 @@ async function handleUpload(request) {
   const fileName = file.name;
 
   // 上传文件到 R2
-  await bucket.put(fileName, file, {
-    contentType: file.type
-  });
+  try {
+    // 上传文件到 R2
+    await bucket.put(fileName, file, {
+      contentType: file.type
+    });
 
-  // 返回成功信息
-  return new Response('File uploaded successfully', { status: 200 });
+    return new Response('File uploaded successfully', { status: 200 });
+  } catch (error) {
+    if (error instanceof R2.NetworkError) {
+      return new Response('Upload failed! Network error.', { status: 500 });
+    } else {
+      return new Response('Upload failed! Server error.', { status: 500 });
+    }
+  }
 }
 
 async function handleDownload(request) {
