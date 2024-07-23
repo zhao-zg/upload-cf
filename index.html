@@ -64,7 +64,6 @@
       formData.append('file', file);
 
       const xhr = new XMLHttpRequest();
-      xhr.open('POST', '/upload');
 
       xhr.upload.addEventListener('progress', function(event) {
         const percentComplete = (event.loaded / event.total) * 100;
