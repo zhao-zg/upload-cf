@@ -1,7 +1,7 @@
 addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
-
+  
   // 处理上传请求
   if (url.pathname === '/upload' && request.method === 'POST') {
     return handleUpload(request);
@@ -11,7 +11,10 @@ addEventListener('fetch', event => {
   if (url.pathname.startsWith('/download/') && request.method === 'GET') {
     return handleDownload(request);
   }
-
+  // 处理静态文件请求
+  if (url.pathname.startsWith('/')) {
+    return event.respondWith(fetch(request));
+  }
   // 处理其他请求
   return new Response('Invalid request', { status: 400 });
 });
