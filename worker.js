@@ -3,12 +3,12 @@ addEventListener('fetch', event => {
   const url = new URL(request.url);
   
   // 处理上传请求
-  if (url.pathname == '/upload') {
+  if (url.pathname == '/upload' && request.method == 'POST') {
     return handleUpload(request);
   }
 
   // 处理文件下载请求
-  if (url.pathname.startsWith('/download/')) {
+  if (url.pathname.startsWith('/download/') && request.method == 'GET') {
     return handleDownload(request);
   }
   // 处理静态文件请求
@@ -18,8 +18,7 @@ addEventListener('fetch', event => {
   // 处理其他请求
   return new Response('Invalid request', { status: 400 });
 });
-
-async function handleUpload(request) {
+const handleUpload = async (request) => {
   const formData = await request.formData();
   const file = formData.get('file');
 
@@ -52,7 +51,7 @@ async function handleUpload(request) {
   }
 }
 
-async function handleDownload(request) {
+const handleDownload = async (request) => {
   const url = new URL(request.url);
   const fileName = url.pathname.slice('/download/'.length);
 
