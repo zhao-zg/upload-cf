@@ -46,7 +46,7 @@ async function handleDownload(request) {
   const fileName = url.pathname.slice('/download/'.length);
 
   // 获取 R2 存储桶信息
-  const bucketName = 'your-r2-bucket-name'; // 替换为你的 R2 存储桶名称
+  const bucketName = 'sg-apk'; // 替换为你的 R2 存储桶名称
   const bucket = R2.getBucket(bucketName);
 
   // 从 R2 下载文件
