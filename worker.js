@@ -4,7 +4,8 @@ addEventListener('fetch', event => {
   
   // 处理上传请求
   if (url.pathname == '/upload' && request.method == 'POST') {
-    return handleUpload(request);
+    return new Response('File uploaded successfully', { status: 200 });
+   // return handleUpload(request);
   }
 
   // 处理文件下载请求
