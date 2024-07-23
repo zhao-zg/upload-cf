@@ -1,48 +1,70 @@
 addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
-  // 处理上传请求
-  if (url.pathname === '/upload' && request.method === 'POST') {
-    return handleUpload(request);
-  }
 
-  // 处理静态文件请求
-  if (url.pathname.startsWith('/')) {
-    return event.respondWith(fetch(request));
+  // 检查请求方法
+  if (request.method === 'POST') {
+    // 处理文件上传
+    handleFileUpload(request).then(response => {
+      event.respondWith(response);
+    }).catch(error => {
+      event.respondWith(new Response(JSON.stringify({ error: error.message }), {
+        status: 500
+      }));
+    });
+  } else {
+    // 处理前端请求
+    event.respondWith(new Response(generateHTML(), {
+      headers: {
+        'Content-Type': 'text/html'
+      }
+    }));
   }
-  // 处理其他请求
-  return new Response('Invalid request', { status: 400 });
 });
-async function handleUpload(request) {
+
+async function handleFileUpload(request) {
   const formData = await request.formData();
   const file = formData.get('file');
 
-  // 检查文件是否上传
-  if (!file) {
-    return new Response('No file uploaded', { status: 400 });
+  // 检查文件类型
+  if (!file || !file.type) {
+    return new Response('Invalid file', { status: 400 });
   }
 
-  // 获取 R2 存储桶信息
-  const bucketName = 'sg-apk'; // 替换为你的 R2 存储桶名称
-  const bucket = R2.getBucket(bucketName);
+  // 获取 R2 存储桶名称和密钥
+  const bucketName = 'sg-apk'; // 替换为您的 R2 存储桶名称
 
-  // 生成文件名
-  const fileName = file.name;
+  // 创建 R2 对象
+  const r2 = new R2({
+    bucket: bucketName
+  });
 
   // 上传文件到 R2
-  try {
-    // 上传文件到 R2
-    await bucket.put(fileName, file, {
-      contentType: file.type
-    });
+  const response = await r2.put(file.name, file, {
+    contentType: file.type
+  });
 
-    return new Response('File uploaded successfully', { status: 200 });
-  } catch (error) {
-    if (error instanceof R2.NetworkError) {
-      return new Response('Upload failed! Network error.', { status: 500 });
-    } else {
-      return new Response('Upload failed! Server error.', { status: 500 });
-    }
-  }
+  // 返回响应
+  return new Response(JSON.stringify({ message: 'File uploaded successfully' }), {
+    status: 200
+  });
 }
 
+// 生成前端 HTML
+function generateHTML() {
+  return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>R2 Upload</title>
+    </head>
+    <body>
+      <h1>Upload File</h1>
+      <form method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <button type="submit">Upload</button>
+      </form>
+    </body>
+    </html>
+  `;
+}
